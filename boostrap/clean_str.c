@@ -8,46 +8,63 @@
 #include <stdlib.h>
 #include <string.h>
 
-char *replace_all(char *str, char to_replace, char replace_by)
+#include <stdio.h>
+#include <unistd.h>
+
+int is_banned_char(char c)
 {
-    for (int i = 0 ; str[i] ; i++) {
-        if (str[i] == to_replace)
-            str[i] = replace_by;
-    }
-    return (str);
+    if (c == ' ' || c == '\t' || c == 10)
+        return (1);
+    return (0);
 }
 
-int count_begin(char *str)
+int count_leading(char *str)
 {
     int len = 0;
 
-    for (int i = 0; str[i] ; i++) {
-        if (!((str[i] == ' ' || str[i] == '\t') && len == 0))
-            len++;
-    }
+    for (; is_banned_char(str[len]); len++);
     return (len);
 }
 
-char *clean_spaces_tabs(char *str)
+int count_trailing(char *str)
+{
+    int len = strlen(str) - 1;
+
+    if (len > 0)
+        for (; is_banned_char(str[len]); len--);
+    return (len);
+}
+
+void complete_string(char *src, char *dest, int begin_len, int end_len)
+{
+    int index = 0;
+
+    for (int i = begin_len; src[i] && i < (begin_len + end_len); i++) {
+        if (src[i] == ' ' && is_banned_char(src[i + 1]))
+            continue;
+        dest[index++] = src[i];
+    }
+    dest[index] = '\0';
+}
+
+char *clean_string(char *str)
 {
     char *new_str = NULL;
-    int len = count_begin(str);
-    int last_char_i = 0;
-    int index = 0;
-    int base_len = strlen(str);
+    int begin_len = count_leading(str);
+    int end_len = count_trailing(str) + 1;
+    int len = (end_len - begin_len);
 
-    for (int i = base_len - 1;
-        str[i] == ' ' || str[i] == '\t' || str[i] == 10; i--)
-        last_char_i++;
-    len -= last_char_i;
-    new_str = malloc(sizeof(char) * (len + 1));
-    if (new_str == NULL)
-        exit(84);
-    new_str[len] = '\0';
-    for (int i = 0 ; i < base_len - last_char_i ; i++) {
-        if (!((str[i] == ' ' || str[i] == '\t' || str[i] == 10) && index == 0))
-            new_str[index++] = str[i];
+    for (int i = begin_len; str[i] && i < end_len; i++) {
+        if ((str[i] == ' ' && is_banned_char(str[i + 1]))
+            || str[i] == '\t' || str[i] == 10)
+            len--;
     }
-    new_str = replace_all(new_str, '\t', ' ');
+    new_str = malloc(sizeof(char) * (len + 2));
+    if (!new_str) {
+        free(str);
+        exit(84);
+    }
+    complete_string(str, new_str, begin_len, end_len);
+    free(str);
     return (new_str);
 }

@@ -82,7 +82,6 @@ void close_all_connections(int sig)
         active_fd_set = read_fd_set;
         if (!FD_ISSET(i, &active_fd_set) || i == serverfd)
             continue;
-        printf("Close %d\n", i);
         write(i, "Server stopped the connection.", 1024);
         close(i);
         FD_CLR(i, &active_fd_set);
@@ -105,8 +104,7 @@ int treat_potential_client(int serverfd, int i, fd_set *active_fd_set)
         valread = read(i, buffer, 1024);
         if (valread == -1)
             return (84);
-        if (strcmp(buffer, "exit") == 0) {
-            printf("CLOSE because of %d - %s\n", valread, buffer);
+        if (valread == 0 || strcmp(buffer, "exit") == 0) {
             close(i);
             FD_CLR(i, active_fd_set);
         }
