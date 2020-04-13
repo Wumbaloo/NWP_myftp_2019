@@ -8,6 +8,7 @@
 SRC_DIR	=	src/
 
 FILES	=	client_handler.c	\
+			commands.c			\
 			core.c				\
 			initialization.c	\
 			useful.c			\

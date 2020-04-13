@@ -35,3 +35,12 @@ void handle_command(int clientfd, char *input, fd_set *active_fd_set)
     }
     dprintf(clientfd, "Server: What's next?\n");
 }
+
+void free_commands(void)
+{
+    for (int i = 0; myftp->cmds[i]; i++) {
+        free(myftp->cmds[i]->command);
+        free(myftp->cmds[i]);
+    }
+    free(myftp);
+}

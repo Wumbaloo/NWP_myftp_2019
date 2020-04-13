@@ -74,7 +74,7 @@ command_t *create_command(char *name, void (*ptr)(int, void *))
     return (cmd);
 }
 
-void initialize_commands()
+void initialize_commands(void)
 {
     myftp->cmds = malloc(sizeof(command_t *) * 4);
 
@@ -86,13 +86,4 @@ void initialize_commands()
     myftp->cmds[1] = create_command("USER", &set_username);
     myftp->cmds[2] = create_command("PASS", &set_password);
     myftp->cmds[3] = NULL;
-}
-
-void free_commands()
-{
-    for (int i = 0; myftp->cmds[i]; i++) {
-        free(myftp->cmds[i]->command);
-        free(myftp->cmds[i]);
-    }
-    free(myftp);
 }

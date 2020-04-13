@@ -21,8 +21,8 @@ void close_all_connections(int sig);
 void handle_command(int clientfd, char *input, fd_set *active_fd_set);
 void set_username(int clientfd, void *username);
 void set_password(int clientfd, void *password);
-void initialize_commands();
-void free_commands();
+void initialize_commands(void);
+void free_commands(void);
 
 typedef struct command_s {
     char *command;
