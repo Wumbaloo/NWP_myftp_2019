@@ -32,6 +32,7 @@ int treat_potential_client(int serverfd, int i, fd_set *active_fd_set)
     int valread = -1;
     int clientfd = -1;
     char buffer[1024];
+    FILE *client;
 
     if (i == serverfd) {
         clientfd = accept_new_connection(serverfd);
@@ -42,12 +43,14 @@ int treat_potential_client(int serverfd, int i, fd_set *active_fd_set)
         valread = read(i, buffer, 1024);
         if (valread == -1)
             return (84);
-        if (valread == 0 || strcmp(buffer, "exit") == 0) {
+        else if (valread == 0 || strcmp(buffer, "exit") == 0) {
             close(i);
             FD_CLR(i, active_fd_set);
+            return (0);
         }
+        buffer[valread] = '\0';
         printf("Received: %s\n", buffer);
-        write(i, "Server: What's next?", 21);
+        dprintf(i, "Server: What's next?");
     }
     return (0);
 }

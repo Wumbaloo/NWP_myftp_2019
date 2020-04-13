@@ -13,7 +13,7 @@ int loop_server(int serverfd)
 {
     fd_set active_fd_set;
 
-    signal(SIGINT, close_all_connections);
+    // signal(SIGINT, close_all_connections);
     FD_ZERO(&active_fd_set);
     FD_SET(serverfd, &active_fd_set);
     for (;;) {
