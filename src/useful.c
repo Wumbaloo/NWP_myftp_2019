@@ -6,8 +6,16 @@
 */
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <unistd.h>
 #include "ftp.h"
+
+void close_connection(int clientfd, void *active_fd_set)
+{
+    close(clientfd);
+    printf("Close connection\n");
+    FD_CLR(clientfd, (fd_set *) active_fd_set);
+}
 
 void close_all_connections(int sig)
 {

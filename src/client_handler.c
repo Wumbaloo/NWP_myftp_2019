@@ -7,10 +7,12 @@
 
 #include <unistd.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include "ftp.h"
 
 int accept_new_connection(int serverfd)
 {
@@ -22,16 +24,36 @@ int accept_new_connection(int serverfd)
         perror("accept");
         return (-1);
     }
-    write(clientfd, "Server: Hello client!", 22);
+    write(clientfd, "220\n", 4);
     printf("A new client joined with IP: %s.\n", inet_ntoa(clientstruct.sin_addr));
     return (clientfd);
 }
 
-int treat_potential_client(int serverfd, int i, fd_set *active_fd_set)
+char *read_from_client(int fd)
 {
     int valread = -1;
-    int clientfd = -1;
     char buffer[1024];
+    char *string = NULL;
+
+    valread = read(fd, buffer, 1024);
+    if (valread == 0) {
+        valread = 4;
+        strcpy(buffer, "exit");
+    }
+    string = malloc(sizeof(char) * (valread + 1));
+    if (string == NULL) {
+        perror("malloc");
+        exit(84);
+    }
+    memcpy(string, buffer, valread);
+    string[valread] = '\0';
+    return (string);
+}
+
+int treat_potential_client(int serverfd, int i, fd_set *active_fd_set)
+{
+    int clientfd = -1;
+    char *buffer;
     FILE *client;
 
     if (i == serverfd) {
@@ -40,17 +62,11 @@ int treat_potential_client(int serverfd, int i, fd_set *active_fd_set)
             return (84);
         FD_SET(clientfd, active_fd_set);
     } else {
-        valread = read(i, buffer, 1024);
-        if (valread == -1)
+        buffer = read_from_client(i);
+        if (buffer == NULL)
             return (84);
-        else if (valread == 0 || strcmp(buffer, "exit") == 0) {
-            close(i);
-            FD_CLR(i, active_fd_set);
-            return (0);
-        }
-        buffer[valread] = '\0';
+        handle_command(i, buffer, active_fd_set);
         printf("Received: %s\n", buffer);
-        dprintf(i, "Server: What's next?");
     }
     return (0);
 }

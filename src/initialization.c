@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/time.h>
@@ -51,4 +52,47 @@ int create_server(int port)
         return (-1);
     }
     return (serverfd);
+}
+
+command_t *create_command(char *name, void (*ptr)(int, void *))
+{
+    command_t *cmd = malloc(sizeof(command_t));
+    int len = strlen(name);
+
+    if (cmd == NULL) {
+        perror("command");
+        exit(84);
+    }
+    cmd->command = malloc(sizeof(char) * (len + 1));
+    if (cmd->command == NULL) {
+        perror("command");
+        exit(84);
+    }
+    strcpy(cmd->command, name);
+    cmd->command[len] = '\0';
+    cmd->func = ptr;
+    return (cmd);
+}
+
+void initialize_commands()
+{
+    myftp->cmds = malloc(sizeof(command_t *) * 4);
+
+    if (myftp->cmds == NULL) {
+        perror("malloc");
+        exit(84);
+    }
+    myftp->cmds[0] = create_command("exit", &close_connection);
+    myftp->cmds[1] = create_command("USER", &set_username);
+    myftp->cmds[2] = create_command("PASS", &set_password);
+    myftp->cmds[3] = NULL;
+}
+
+void free_commands()
+{
+    for (int i = 0; myftp->cmds[i]; i++) {
+        free(myftp->cmds[i]->command);
+        free(myftp->cmds[i]);
+    }
+    free(myftp);
 }

@@ -13,6 +13,7 @@ int loop_server(int serverfd)
 {
     fd_set active_fd_set;
 
+    initialize_commands();
     // signal(SIGINT, close_all_connections);
     FD_ZERO(&active_fd_set);
     FD_SET(serverfd, &active_fd_set);
@@ -28,6 +29,7 @@ int loop_server(int serverfd)
                 return (84);
         }
     }
+    free_commands();
 }
 
 int launch_server(int ac, char **av)
