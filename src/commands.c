@@ -14,10 +14,14 @@ void set_username(int clientfd, void *cmd)
 {
     char *command = strdup(cmd);
     char *text = strtok(cmd, " ");
+    int len;
 
     if (text)
         text = strtok(NULL, " ");
-    if (!text) {
+    len = strlen(text);
+    if (text[len - 1] == 13 || text[len - 1] == '\n')
+        text[len - 1] = '\0';
+    if (!text || strncmp(text, "Anonymous", 9) != 0) {
         dprintf(clientfd, "430\n");
         printf("Client %d tried to set a new username\n", clientfd);
     } else {
@@ -31,12 +35,11 @@ void set_password(int clientfd, void *cmd)
     char *command = strdup(cmd);
     char *text = strtok(cmd, " ");
 
-    if (text)
-        text = strtok(NULL, " ");
-    if (!text) {
+    text = strtok(NULL, " ");
+    if (text && (text[0] != 13 && text[0] != '\n')) {
         dprintf(clientfd, "430\n");
         printf("Client %d tried to set a new password\n", clientfd);
-    } else {
+    } else{
         dprintf(clientfd, "230\n");
         printf("Client %d has a new password which is %s\n", clientfd, text);
     }
