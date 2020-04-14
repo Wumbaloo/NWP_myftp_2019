@@ -54,7 +54,7 @@ int create_server(int port)
     return (serverfd);
 }
 
-command_t *create_command(char *name, void (*ptr)(int, void *))
+command_t *create_command(char *name, void (*ptr)(client_t *, void *))
 {
     command_t *cmd = malloc(sizeof(command_t));
     int len = strlen(name);

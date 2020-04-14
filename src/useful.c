@@ -10,11 +10,11 @@
 #include <unistd.h>
 #include "ftp.h"
 
-void close_connection(int clientfd, void *active_fd_set)
+void close_connection(client_t *client, void *active_fd_set)
 {
-    close(clientfd);
+    close(client->fd);
     printf("Close connection\n");
-    FD_CLR(clientfd, (fd_set *) active_fd_set);
+    FD_CLR(client->fd, (fd_set *) active_fd_set);
 }
 
 void close_all_connections(int sig)

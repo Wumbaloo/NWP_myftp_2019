@@ -10,12 +10,12 @@
 #include <stdlib.h>
 #include "ftp.h"
 
-void pasv_command(int clientfd, void *arg)
+void pasv_command(client_t *client, void *arg)
 {
-    printf("PASV\n");
+    printf("PASV from: %s.\n", inet_ntoa(client->data.sin_addr));
 }
 
-void set_username(int clientfd, void *cmd)
+void set_username(client_t *client, void *cmd)
 {
     char *command = strdup(cmd);
     char *text = strtok(cmd, " ");
@@ -27,47 +27,49 @@ void set_username(int clientfd, void *cmd)
     if (text[len - 1] == 13 || text[len - 1] == '\n')
         text[len - 1] = '\0';
     if (!text || strncmp(text, "Anonymous", 9) != 0) {
-        dprintf(clientfd, "430\n");
-        printf("Client %d tried to set a new username\n", clientfd);
+        dprintf(client->fd, "430\n");
+        printf("Client %d tried to set a new username\n", client->fd);
     } else {
-        dprintf(clientfd, "331\n");
-        printf("Client %d has a new username which is %s\n", clientfd, text);
+        dprintf(client->fd, "331\n");
+        printf("Client %d has a new username which is %s\n", client->fd, text);
     }
 }
 
-void set_password(int clientfd, void *cmd)
+void set_password(client_t *client, void *cmd)
 {
     char *command = strdup(cmd);
     char *text = strtok(cmd, " ");
 
     text = strtok(NULL, " ");
     if (text && (text[0] != 13 && text[0] != '\n')) {
-        dprintf(clientfd, "430\n");
-        printf("Client %d tried to set a new password\n", clientfd);
+        dprintf(client->fd, "430\n");
+        printf("Client %d tried to set a new password\n", client->fd);
     } else{
-        dprintf(clientfd, "230\n");
-        printf("Client %d has a new password which is %s\n", clientfd, text);
+        dprintf(client->fd, "230\n");
+        printf("Client %d has a new password which is %s\n", client->fd, text);
     }
 }
 
-void handle_command(int clientfd, char *input, fd_set *active_fd_set)
+void handle_command(client_t *client, char *input, fd_set *active_fd_set)
 {
     char *base_input = strdup(input);
     char *cmd = strtok(input, " ");
 
+    if (!client)
+        printf("HERE\n");
     if (!cmd)
         cmd = input;
     for (int i = 0 ; myftp->cmds[i] ; i++) {
         if (strcmp(myftp->cmds[i]->command, cmd) == 0) {
             if (strcmp(cmd, "exit") == 0)
-                myftp->cmds[i]->func(clientfd, active_fd_set);
+                myftp->cmds[i]->func(client, active_fd_set);
             else
-                myftp->cmds[i]->func(clientfd, base_input);
+                myftp->cmds[i]->func(client, base_input);
             free(base_input);
             return;
         }
     }
-    dprintf(clientfd, "Server: What's next?\n");
+    dprintf(client->fd, "Server: What's next?\n");
     free(base_input);
 }
 

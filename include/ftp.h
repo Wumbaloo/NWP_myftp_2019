@@ -15,21 +15,22 @@
 
 int create_server(int port);
 int launch_server(int ac, char **av);
-int treat_potential_client(int serverfd, int i, fd_set *active_fd_set);
+int treat_potential_client(int serverfd, int i, fd_set *active_fd_set,
+                            client_t **head);
 
-void close_connection(int clientfd, void *active_fd_set);
+void close_connection(client_t *client, void *active_fd_set);
 void close_all_connections(int sig);
 
-void handle_command(int clientfd, char *input, fd_set *active_fd_set);
-void set_username(int clientfd, void *username);
-void set_password(int clientfd, void *password);
-void pasv_command(int clientfd, void *arg);
+void handle_command(client_t *client, char *input, fd_set *active_fd_set);
+void set_username(client_t *client, void *username);
+void set_password(client_t *client, void *password);
+void pasv_command(client_t *client, void *arg);
 void initialize_commands(void);
 void free_commands(void);
 
 typedef struct command_s {
     char *command;
-    void (*func)(int, void *);
+    void (*func)(client_t *, void *);
 } command_t;
 
 typedef struct ftp_s {
@@ -37,7 +38,7 @@ typedef struct ftp_s {
     fd_set read_fd_set;
     struct timeval timeout;
     command_t **cmds;
-    client_t *clients;
+    client_t *client_head;
 } ftp_t;
 
 extern ftp_t *myftp;

@@ -9,7 +9,7 @@
 #include <signal.h>
 #include "ftp.h"
 
-int loop_server(int serverfd)
+int loop_server(int serverfd, client_t **head)
 {
     fd_set active_fd_set;
 
@@ -24,7 +24,8 @@ int loop_server(int serverfd)
         for (int i = 0; i < FD_SETSIZE; i++) {
             if (!FD_ISSET(i, &myftp->read_fd_set))
                 continue;
-            else if (treat_potential_client(serverfd, i, &active_fd_set) != 0)
+            else if (treat_potential_client(serverfd, i,
+                        &active_fd_set, head) != 0)
                 return (84);
         }
     }
@@ -52,6 +53,6 @@ int launch_server(int ac, char **av)
     myftp->timeout.tv_sec = 1;
     myftp->timeout.tv_usec = myftp->timeout.tv_sec * 1000;
     myftp->serverfd = serverfd;
-    loop_server(serverfd);
+    loop_server(serverfd, &myftp->client_head);
     return (0);
 }

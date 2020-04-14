@@ -14,19 +14,27 @@
 #include <arpa/inet.h>
 #include "ftp.h"
 
-int accept_new_connection(int serverfd)
+int accept_new_connection(int serverfd, client_t **head)
 {
     socklen_t client_addr_size = sizeof(struct sockaddr_in);
-    struct sockaddr_in clientstruct;
-    int clientfd = accept(serverfd, (struct sockaddr *) &clientstruct, &client_addr_size);
+    client_t *client = NULL;
 
-    if (clientfd < 0) {
+    client = malloc(sizeof(client_t));
+    if (!client) {
+        perror("malloc");
+        exit(84);
+    }
+    client->fd = accept(serverfd, (struct sockaddr *) &client->data,
+                    &client_addr_size);
+    if (client->fd < 0) {
         perror("accept");
         return (-1);
     }
-    write(clientfd, "220\n", 4);
-    printf("A new client joined with IP: %s.\n", inet_ntoa(clientstruct.sin_addr));
-    return (clientfd);
+    client->next = NULL;
+    write(client->fd, "220\n", 4);
+    insert_new_node(head, client);
+    printf("A new client joined with IP: %s.\n", inet_ntoa(client->data.sin_addr));
+    return (client->fd);
 }
 
 char *read_from_client(int fd)
@@ -50,14 +58,14 @@ char *read_from_client(int fd)
     return (string);
 }
 
-int treat_potential_client(int serverfd, int i, fd_set *active_fd_set)
+int treat_potential_client(int serverfd, int i, fd_set *active_fd_set,
+                            client_t **head)
 {
     int clientfd = -1;
     char *buffer;
-    FILE *client;
 
     if (i == serverfd) {
-        clientfd = accept_new_connection(serverfd);
+        clientfd = accept_new_connection(serverfd, head);
         if (clientfd < 0)
             return (84);
         FD_SET(clientfd, active_fd_set);
@@ -65,7 +73,7 @@ int treat_potential_client(int serverfd, int i, fd_set *active_fd_set)
         buffer = read_from_client(i);
         if (buffer == NULL)
             return (84);
-        handle_command(i, buffer, active_fd_set);
+        handle_command(get_client_by_id(*head, i), buffer, active_fd_set);
         printf("Received: %s\n", buffer);
     }
     return (0);
