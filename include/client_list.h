@@ -12,6 +12,8 @@
 
 typedef struct client_s {
     int fd;
+    int data_socket;
+    struct sockaddr_in config_socket;
     struct sockaddr_in data;
     struct client_s *next;
 } client_t;

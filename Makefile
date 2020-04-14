@@ -12,6 +12,7 @@ FILES	=	client_handler.c	\
 			commands.c			\
 			core.c				\
 			initialization.c	\
+			pasv.c				\
 			useful.c			\
 
 MAIN_FILE	=	main.c

@@ -10,11 +10,6 @@
 #include <stdlib.h>
 #include "ftp.h"
 
-void pasv_command(client_t *client, void *arg)
-{
-    printf("PASV from: %s.\n", inet_ntoa(client->data.sin_addr));
-}
-
 void set_username(client_t *client, void *cmd)
 {
     char *command = strdup(cmd);
@@ -56,7 +51,7 @@ void handle_command(client_t *client, char *input, fd_set *active_fd_set)
     char *cmd = strtok(input, " ");
 
     if (!client)
-        printf("HERE\n");
+        return;
     if (!cmd)
         cmd = input;
     for (int i = 0 ; myftp->cmds[i] ; i++) {
