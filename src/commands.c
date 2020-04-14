@@ -10,6 +10,11 @@
 #include <stdlib.h>
 #include "ftp.h"
 
+void pasv_command(int clientfd, void *arg)
+{
+    printf("PASV\n");
+}
+
 void set_username(int clientfd, void *cmd)
 {
     char *command = strdup(cmd);
