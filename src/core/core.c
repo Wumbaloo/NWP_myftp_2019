@@ -33,27 +33,36 @@ int loop_server(int serverfd, ftp_t *ftp)
     free_ftp(ftp);
 }
 
+ftp_t *create_ftp(char *path, int port, int serverfd)
+{
+    ftp_t *ftp = malloc(sizeof(ftp_t));
+
+    if (ftp == NULL)
+        return (NULL);
+    ftp->pwd = path;
+    ftp->timeout.tv_sec = 1;
+    ftp->timeout.tv_usec = ftp->timeout.tv_sec * 1000;
+    ftp->serverfd = serverfd;
+    return (ftp);
+}
+
 int launch_server(int ac, char **av)
 {
-    char *path = NULL;
     int port = -1;
     int serverfd = -1;
+    ftp_t *ftp = NULL;
 
     if (ac != 3)
         return (84);
     port = strtol(av[1], NULL, 10);
-    path = av[2];
     if (port < 0)
         return (84);
     serverfd = create_server(port);
     if (serverfd < 0)
         return (84);
-    ftp_t *ftp = malloc(sizeof(ftp_t));
-    if (ftp == NULL)
+    ftp = create_ftp(av[2], port, serverfd);
+    if (!ftp)
         return (84);
-    ftp->timeout.tv_sec = 1;
-    ftp->timeout.tv_usec = ftp->timeout.tv_sec * 1000;
-    ftp->serverfd = serverfd;
     loop_server(serverfd, ftp);
     return (0);
 }

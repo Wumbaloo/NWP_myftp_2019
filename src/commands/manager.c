@@ -11,10 +11,23 @@
 #include "commands.h"
 #include "ftp.h"
 
+void execute_command(client_t *client, command_t **cmds, int i, void *arg)
+{
+    if (i == 0) {
+        cmds[i]->func(client, (fd_set *) arg);
+    } else if (cmds[i]->need_login != client->is_logged)
+        client_answer(client, 530, "Not logged in.");
+    else {
+        cmds[i]->func(client, (char *) arg);
+        free(arg);
+    }
+}
+
 void handle_command(client_t *client, char *input, fd_set *active, ftp_t *ftp)
 {
-    char *base_input = strdup(input);
+    char *base = strdup(input);
     char *cmd = strtok(input, " ");
+    void *arg = NULL;
 
     if (!client)
         return;
@@ -22,22 +35,19 @@ void handle_command(client_t *client, char *input, fd_set *active, ftp_t *ftp)
         cmd = input;
     for (int i = 0 ; ftp->cmds[i] ; i++) {
         if (strcmp(ftp->cmds[i]->command, cmd) == 0) {
-            if (i == 0)
-                ftp->cmds[i]->func(client, active);
-            else
-                ftp->cmds[i]->func(client, base_input);
-            free(base_input);
+            arg = (i == 0 ? (void *) active : (void *) base);
+            execute_command(client, ftp->cmds, i, arg);
             return;
         }
     }
     client_answer(client, 500, "What's next?");
-    free(base_input);
+    free(base);
 }
 
-command_t *create_command(char *name, void (*ptr)(client_t *, void *))
+command_t *create_command(char *txt, int login, void (*ptr)(client_t *, void *))
 {
     command_t *cmd = malloc(sizeof(command_t));
-    int len = strlen(name);
+    int len = strlen(txt);
 
     if (cmd == NULL) {
         perror("command");
@@ -48,9 +58,10 @@ command_t *create_command(char *name, void (*ptr)(client_t *, void *))
         perror("command");
         exit(84);
     }
-    strcpy(cmd->command, name);
+    strcpy(cmd->command, txt);
     cmd->command[len] = '\0';
     cmd->func = ptr;
+    cmd->need_login = login;
     return (cmd);
 }
 
@@ -62,10 +73,10 @@ void initialize_commands(ftp_t *ftp)
         perror("malloc");
         exit(84);
     }
-    ftp->cmds[0] = create_command("EXIT", &close_connection);
-    ftp->cmds[1] = create_command("USER", &set_username);
-    ftp->cmds[2] = create_command("PASS", &set_password);
-    ftp->cmds[3] = create_command("PASV", &pasv_command);
-    ftp->cmds[4] = create_command("NOOP", &noop_cmd);
+    ftp->cmds[0] = create_command("EXIT", 0, &close_connection);
+    ftp->cmds[1] = create_command("USER", 0, &set_username);
+    ftp->cmds[2] = create_command("PASS", -1, &set_password);
+    ftp->cmds[3] = create_command("PASV", 1, &pasv_command);
+    ftp->cmds[4] = create_command("NOOP", 1, &noop_cmd);
     ftp->cmds[5] = NULL;
 }

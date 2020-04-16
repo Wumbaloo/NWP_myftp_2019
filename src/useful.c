@@ -14,6 +14,7 @@ void close_connection(client_t *client, void *active_fd_set)
 {
     close(client->fd);
     printf("Close connection\n");
+    client->is_logged = 0;
     FD_CLR(client->fd, (fd_set *) active_fd_set);
 }
 

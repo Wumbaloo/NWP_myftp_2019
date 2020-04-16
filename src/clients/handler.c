@@ -32,6 +32,7 @@ int accept_new_connection(int serverfd, client_t **head)
         perror("accept");
         return (-1);
     }
+    client->is_logged = 0;
     client->next = NULL;
     client_answer(client, 220, "Welcome client.");
     insert_new_node(head, client);
