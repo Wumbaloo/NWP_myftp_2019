@@ -67,7 +67,7 @@ command_t *create_command(char *txt, int login, void (*ptr)(client_t *, void *))
 
 void initialize_commands(ftp_t *ftp)
 {
-    ftp->cmds = malloc(sizeof(command_t *) * 6);
+    ftp->cmds = malloc(sizeof(command_t *) * 7);
 
     if (ftp->cmds == NULL) {
         perror("malloc");
@@ -78,5 +78,6 @@ void initialize_commands(ftp_t *ftp)
     ftp->cmds[2] = create_command("PASS", -1, &set_password);
     ftp->cmds[3] = create_command("PASV", 1, &pasv_command);
     ftp->cmds[4] = create_command("NOOP", 1, &noop_cmd);
-    ftp->cmds[5] = NULL;
+    ftp->cmds[5] = create_command("HELP", 0, &help_cmd);
+    ftp->cmds[6] = NULL;
 }
