@@ -13,6 +13,8 @@
 void handle_command(client_t *client, char *input, fd_set *active, ftp_t *ftp);
 void noop_cmd(client_t *client, void *arg);
 void help_cmd(client_t *client, void *arg);
+void cwd_cmd(client_t *client, void *arg);
+void pwd_cmd(client_t *client, void *arg);
 
 void initialize_commands(ftp_t *ftp);
 

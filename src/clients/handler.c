@@ -16,7 +16,7 @@
 #include "commands.h"
 #include "ftp.h"
 
-int accept_new_connection(int serverfd, client_t **head)
+int accept_new_connection(int serverfd, client_t **head, char *pwd)
 {
     socklen_t client_addr_size = sizeof(struct sockaddr_in);
     client_t *client = NULL;
@@ -33,6 +33,7 @@ int accept_new_connection(int serverfd, client_t **head)
         return (-1);
     }
     client->is_logged = 0;
+    client->pwd = strdup(pwd);
     client->next = NULL;
     client_answer(client, 220, "Welcome client.");
     insert_new_node(head, client);
@@ -67,7 +68,7 @@ int treat_client(int serverfd, int i, fd_set *active, ftp_t *ftp)
     char *buffer;
 
     if (i == serverfd) {
-        clientfd = accept_new_connection(serverfd, &ftp->client_head);
+        clientfd = accept_new_connection(serverfd, &ftp->client_head, ftp->pwd);
         if (clientfd < 0)
             return (84);
         FD_SET(clientfd, active);

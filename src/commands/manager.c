@@ -67,17 +67,19 @@ command_t *create_command(char *txt, int login, void (*ptr)(client_t *, void *))
 
 void initialize_commands(ftp_t *ftp)
 {
-    ftp->cmds = malloc(sizeof(command_t *) * 7);
+    ftp->cmds = malloc(sizeof(command_t *) * 9);
 
     if (ftp->cmds == NULL) {
         perror("malloc");
         exit(84);
     }
-    ftp->cmds[0] = create_command("EXIT", 0, &close_connection);
+    ftp->cmds[0] = create_command("QUIT", 0, &close_connection);
     ftp->cmds[1] = create_command("USER", 0, &set_username);
     ftp->cmds[2] = create_command("PASS", -1, &set_password);
     ftp->cmds[3] = create_command("PASV", 1, &pasv_command);
     ftp->cmds[4] = create_command("NOOP", 1, &noop_cmd);
     ftp->cmds[5] = create_command("HELP", 0, &help_cmd);
-    ftp->cmds[6] = NULL;
+    ftp->cmds[6] = create_command("CWD", 0, &cwd_cmd);
+    ftp->cmds[7] = create_command("PWD", 0, &pwd_cmd);
+    ftp->cmds[8] = NULL;
 }
