@@ -32,8 +32,9 @@ void pasv_send_client_instructions(client_t *client, unsigned int port)
     char *ip3 = strtok(NULL, ".");
     char *ip4 = strtok(NULL, ".");
 
-    dprintf(client->fd, "%d\nYou can now connect to: (%s, %s, %s, %s, %u, %d)\n", 227, ip1, ip2, ip3, ip4, port, 256);
-    printf("PASV from: %s.\n", inet_ntoa(client->data.sin_addr));
+    dprintf(client->fd, "%d You can now connect to: ", 227);
+    dprintf(client->fd, "(%s, %s, %s, %s, %u, %d)\r\n", ip1, ip2, ip3, ip4, port, 256);
+    printf("PASV from: %s.\n", ip);
 }
 
 void pasv_treat_new_client(client_t *client)
@@ -70,6 +71,6 @@ void pasv_command(client_t *client, void *arg)
         perror("listen");
         exit(84);
     }
-    pasv_treat_new_client(client);
     pasv_send_client_instructions(client, port);
+    pasv_treat_new_client(client);
 }

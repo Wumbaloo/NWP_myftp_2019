@@ -8,20 +8,7 @@
 #include <criterion/criterion.h>
 #include <stdlib.h>
 #include "ftp.h"
-#include "client_list.h"
-
-void free_list(client_t *head)
-{
-    client_t *tmp = NULL;
-
-    while (head) {
-        tmp = head->next;
-        free(head);
-        head = tmp;
-    }
-    if (tmp)
-        free(tmp);
-}
+#include "clients.h"
 
 Test(insert_new_node, insert_when_empty)
 {

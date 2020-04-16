@@ -2,11 +2,11 @@
 ** EPITECH PROJECT, 2019
 ** My FTP
 ** File description:
-** Client list manager
+** Clients linked list
 */
 
 #include <stdlib.h>
-#include "client_list.h"
+#include "clients.h"
 
 void insert_new_node(client_t **head, client_t *node)
 {
@@ -47,4 +47,17 @@ client_t *get_client_by_id(client_t *head, int id)
         tmp = tmp->next;
     }
     return (NULL);
+}
+
+void free_list(client_t *head)
+{
+    client_t *tmp = NULL;
+
+    while (head) {
+        tmp = head->next;
+        free(head);
+        head = tmp;
+    }
+    if (tmp)
+        free(tmp);
 }

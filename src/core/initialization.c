@@ -14,8 +14,6 @@
 #include <arpa/inet.h>
 #include "ftp.h"
 
-ftp_t *myftp = NULL;
-
 struct sockaddr_in setup_server_config(int sockfd, int port)
 {
     int opt = 1;
@@ -52,40 +50,4 @@ int create_server(int port)
         return (-1);
     }
     return (serverfd);
-}
-
-command_t *create_command(char *name, void (*ptr)(client_t *, void *))
-{
-    command_t *cmd = malloc(sizeof(command_t));
-    int len = strlen(name);
-
-    if (cmd == NULL) {
-        perror("command");
-        exit(84);
-    }
-    cmd->command = malloc(sizeof(char) * (len + 1));
-    if (cmd->command == NULL) {
-        perror("command");
-        exit(84);
-    }
-    strcpy(cmd->command, name);
-    cmd->command[len] = '\0';
-    cmd->func = ptr;
-    return (cmd);
-}
-
-void initialize_commands(void)
-{
-    myftp->cmds = malloc(sizeof(command_t *) * 6);
-
-    if (myftp->cmds == NULL) {
-        perror("malloc");
-        exit(84);
-    }
-    myftp->cmds[0] = create_command("EXIT", &close_connection);
-    myftp->cmds[1] = create_command("USER", &set_username);
-    myftp->cmds[2] = create_command("PASS", &set_password);
-    myftp->cmds[3] = create_command("PASV", &pasv_command);
-    myftp->cmds[4] = create_command("NOOP", &noop_cmd);
-    myftp->cmds[5] = NULL;
 }

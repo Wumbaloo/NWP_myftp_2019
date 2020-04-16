@@ -7,11 +7,14 @@
 
 SRC_DIR	=	src/
 
-FILES	=	client_handler.c	\
-			client_list.c		\
-			commands.c			\
-			core.c				\
-			initialization.c	\
+FILES	=	clients/handler.c		\
+			clients/linked_list.c	\
+			commands/manager.c		\
+			commands/simple_cmds.c	\
+			core/core.c				\
+			core/destructor.c		\
+			core/initialization.c	\
+			authentication.c	\
 			pasv.c				\
 			useful.c			\
 

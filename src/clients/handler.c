@@ -12,6 +12,8 @@
 #include <sys/time.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include "clients.h"
+#include "commands.h"
 #include "ftp.h"
 
 int accept_new_connection(int serverfd, client_t **head)
@@ -58,22 +60,21 @@ char *read_from_client(int fd)
     return (string);
 }
 
-int treat_potential_client(int serverfd, int i, fd_set *active_fd_set,
-                            client_t **head)
+int treat_client(int serverfd, int i, fd_set *active, ftp_t *ftp)
 {
     int clientfd = -1;
     char *buffer;
 
     if (i == serverfd) {
-        clientfd = accept_new_connection(serverfd, head);
+        clientfd = accept_new_connection(serverfd, &ftp->client_head);
         if (clientfd < 0)
             return (84);
-        FD_SET(clientfd, active_fd_set);
+        FD_SET(clientfd, active);
     } else {
         buffer = read_from_client(i);
         if (buffer == NULL)
             return (84);
-        handle_command(get_client_by_id(*head, i), buffer, active_fd_set);
+        handle_command(get_client_by_id(ftp->client_head, i), buffer, active, ftp);
         printf("Received: %s\n", buffer);
     }
     return (0);

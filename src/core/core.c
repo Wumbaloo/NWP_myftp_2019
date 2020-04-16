@@ -7,29 +7,30 @@
 
 #include <stdlib.h>
 #include <signal.h>
+#include "commands.h"
 #include "ftp.h"
 
-int loop_server(int serverfd, client_t **head)
+int loop_server(int serverfd, ftp_t *ftp)
 {
     fd_set active_fd_set;
 
-    initialize_commands();
+    initialize_commands(ftp);
     FD_ZERO(&active_fd_set);
     FD_SET(serverfd, &active_fd_set);
     for (;;) {
-        myftp->read_fd_set = active_fd_set;
-        int nready = select(FD_SETSIZE, &myftp->read_fd_set, NULL, NULL, &myftp->timeout);
+        ftp->read_fd_set = active_fd_set;
+        int nready = select(FD_SETSIZE, &ftp->read_fd_set, NULL, NULL,
+            &ftp->timeout);
         if (nready <= 0)
             continue;
         for (int i = 0; i < FD_SETSIZE; i++) {
-            if (!FD_ISSET(i, &myftp->read_fd_set))
+            if (!FD_ISSET(i, &ftp->read_fd_set))
                 continue;
-            else if (treat_potential_client(serverfd, i,
-                        &active_fd_set, head) != 0)
+            else if (treat_client(serverfd, i, &active_fd_set, ftp) != 0)
                 return (84);
         }
     }
-    free_commands();
+    free_ftp(ftp);
 }
 
 int launch_server(int ac, char **av)
@@ -47,12 +48,12 @@ int launch_server(int ac, char **av)
     serverfd = create_server(port);
     if (serverfd < 0)
         return (84);
-    myftp = malloc(sizeof(ftp_t));
-    if (myftp == NULL)
+    ftp_t *ftp = malloc(sizeof(ftp_t));
+    if (ftp == NULL)
         return (84);
-    myftp->timeout.tv_sec = 1;
-    myftp->timeout.tv_usec = myftp->timeout.tv_sec * 1000;
-    myftp->serverfd = serverfd;
-    loop_server(serverfd, &myftp->client_head);
+    ftp->timeout.tv_sec = 1;
+    ftp->timeout.tv_usec = ftp->timeout.tv_sec * 1000;
+    ftp->serverfd = serverfd;
+    loop_server(serverfd, ftp);
     return (0);
 }
