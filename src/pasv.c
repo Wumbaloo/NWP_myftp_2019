@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <arpa/inet.h>
 #include "ftp.h"
 
 unsigned int get_port(int fd)
@@ -35,6 +36,20 @@ void pasv_send_client_instructions(client_t *client, unsigned int port)
     printf("PASV from: %s.\n", inet_ntoa(client->data.sin_addr));
 }
 
+void pasv_treat_new_client(client_t *client)
+{
+    struct sockaddr_in config;
+    socklen_t addr_size = sizeof(struct sockaddr_in);
+
+    int fd = accept(client->data_socket, (struct sockaddr *) &config,
+                    &addr_size);
+    if (fd < 0) {
+        perror("accept");
+        exit(84);
+    }
+
+}
+
 void pasv_command(client_t *client, void *arg)
 {
     client->data_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -55,5 +70,6 @@ void pasv_command(client_t *client, void *arg)
         perror("listen");
         exit(84);
     }
+    pasv_treat_new_client(client);
     pasv_send_client_instructions(client, port);
 }

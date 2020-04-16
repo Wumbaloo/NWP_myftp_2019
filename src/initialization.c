@@ -76,15 +76,16 @@ command_t *create_command(char *name, void (*ptr)(client_t *, void *))
 
 void initialize_commands(void)
 {
-    myftp->cmds = malloc(sizeof(command_t *) * 5);
+    myftp->cmds = malloc(sizeof(command_t *) * 6);
 
     if (myftp->cmds == NULL) {
         perror("malloc");
         exit(84);
     }
-    myftp->cmds[0] = create_command("exit", &close_connection);
+    myftp->cmds[0] = create_command("EXIT", &close_connection);
     myftp->cmds[1] = create_command("USER", &set_username);
     myftp->cmds[2] = create_command("PASS", &set_password);
     myftp->cmds[3] = create_command("PASV", &pasv_command);
-    myftp->cmds[4] = NULL;
+    myftp->cmds[4] = create_command("NOOP", &noop_cmd);
+    myftp->cmds[5] = NULL;
 }

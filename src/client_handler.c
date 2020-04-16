@@ -31,7 +31,7 @@ int accept_new_connection(int serverfd, client_t **head)
         return (-1);
     }
     client->next = NULL;
-    write(client->fd, "220\n", 4);
+    client_answer(client, 220, "Welcome client.");
     insert_new_node(head, client);
     printf("A new client joined with IP: %s.\n", inet_ntoa(client->data.sin_addr));
     return (client->fd);
@@ -44,9 +44,9 @@ char *read_from_client(int fd)
     char *string = NULL;
 
     valread = read(fd, buffer, 1024);
-    if (valread == 0) {
-        valread = 4;
-        strcpy(buffer, "exit");
+    if (buffer[valread - 1] == 10) {
+        buffer[valread - 2] = '\0';
+        valread--;
     }
     string = malloc(sizeof(char) * (valread + 1));
     if (string == NULL) {

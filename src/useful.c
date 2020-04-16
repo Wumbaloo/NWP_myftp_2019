@@ -17,20 +17,8 @@ void close_connection(client_t *client, void *active_fd_set)
     FD_CLR(client->fd, (fd_set *) active_fd_set);
 }
 
-void close_all_connections(int sig)
+void client_answer(client_t *client, int code, char *msg)
 {
-    fd_set active_fd_set;
-    fd_set total_fd_set;
-
-    (void)(sig);
-    FD_SET(myftp->serverfd, &total_fd_set);
-    for (int i = 0; i < FD_SETSIZE; i++) {
-        active_fd_set = total_fd_set;
-        if (!FD_ISSET(i, &active_fd_set) || i == myftp->serverfd)
-            continue;
-        write(i, "Server stopped the connection.", 1024);
-        close(i);
-        FD_CLR(i, &active_fd_set);
-    }
-    exit(0);
+    dprintf(client->fd, "%d %s\r\n", code, msg);
+    printf("Client %d: %d\r\n", client->fd, code);
 }

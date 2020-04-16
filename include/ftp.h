@@ -19,12 +19,13 @@ int treat_potential_client(int serverfd, int i, fd_set *active_fd_set,
                             client_t **head);
 
 void close_connection(client_t *client, void *active_fd_set);
-void close_all_connections(int sig);
+void client_answer(client_t *client, int code, char *msg);
 
 void handle_command(client_t *client, char *input, fd_set *active_fd_set);
 void set_username(client_t *client, void *username);
 void set_password(client_t *client, void *password);
 void pasv_command(client_t *client, void *arg);
+void noop_cmd(client_t *client, void *arg);
 void initialize_commands(void);
 void free_commands(void);
 
