@@ -77,8 +77,8 @@ void initialize_commands(ftp_t *ftp)
         exit(84);
     }
     ftp->cmds[0] = create_command("QUIT", 0, &close_connection);
-    ftp->cmds[1] = create_command("USER", 0, &set_username);
-    ftp->cmds[2] = create_command("PASS", -1, &set_password);
+    ftp->cmds[1] = create_command("USER", -2, &set_username);
+    ftp->cmds[2] = create_command("PASS", -2, &set_password);
     ftp->cmds[3] = create_command("PASV", 1, &pasv_command);
     ftp->cmds[4] = create_command("NOOP", 1, &noop_cmd);
     ftp->cmds[5] = create_command("HELP", 1, &help_cmd);
