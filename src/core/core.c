@@ -13,18 +13,20 @@
 int loop_server(int serverfd, ftp_t *ftp)
 {
     fd_set active_fd_set;
+    fd_set read_fd_set;
+    int nready = -1;
 
     initialize_commands(ftp);
     FD_ZERO(&active_fd_set);
     FD_SET(serverfd, &active_fd_set);
     for (;;) {
-        ftp->read_fd_set = active_fd_set;
-        int nready = select(FD_SETSIZE, &ftp->read_fd_set, NULL, NULL,
+        read_fd_set = active_fd_set;
+        nready = select(FD_SETSIZE, &read_fd_set, NULL, NULL,
             &ftp->timeout);
         if (nready <= 0)
             continue;
         for (int i = 0; i < FD_SETSIZE; i++) {
-            if (!FD_ISSET(i, &ftp->read_fd_set))
+            if (!FD_ISSET(i, &read_fd_set))
                 continue;
             else if (treat_client(serverfd, i, &active_fd_set, ftp) != 0)
                 return (84);

@@ -31,7 +31,6 @@ typedef struct command_s {
 typedef struct ftp_s {
     int serverfd;
     char *pwd;
-    fd_set read_fd_set;
     struct timeval timeout;
     command_t **cmds;
     client_t *client_head;

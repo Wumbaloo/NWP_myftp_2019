@@ -10,6 +10,8 @@
 
 #include "structs.h"
 
+char *read_from_client(int fd);
+
 int create_server(int port);
 int launch_server(int ac, char **av);
 int treat_client(int serverfd, int i, fd_set *active, ftp_t *ftp);

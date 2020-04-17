@@ -8,15 +8,16 @@
 SRC_DIR	=	src/
 
 FILES	=	clients/handler.c		\
+			clients/inputs.c		\
 			clients/linked_list.c	\
 			commands/manager.c		\
 			commands/simple_cmds.c	\
 			core/core.c				\
 			core/destructor.c		\
 			core/initialization.c	\
-			authentication.c	\
-			pasv.c				\
-			useful.c			\
+			authentication.c		\
+			pasv.c					\
+			useful.c				\
 
 MAIN_FILE	=	main.c
 
