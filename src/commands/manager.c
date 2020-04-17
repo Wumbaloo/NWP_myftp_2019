@@ -81,7 +81,7 @@ void initialize_commands(ftp_t *ftp)
     ftp->cmds[2] = create_command("PASS", -1, &set_password);
     ftp->cmds[3] = create_command("PASV", 1, &pasv_command);
     ftp->cmds[4] = create_command("NOOP", 1, &noop_cmd);
-    ftp->cmds[5] = create_command("HELP", 0, &help_cmd);
+    ftp->cmds[5] = create_command("HELP", 1, &help_cmd);
     ftp->cmds[6] = create_command("CWD", 1, &cwd_cmd);
     ftp->cmds[7] = create_command("PWD", 1, &pwd_cmd);
     ftp->cmds[8] = NULL;
