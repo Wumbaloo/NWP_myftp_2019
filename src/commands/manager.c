@@ -70,7 +70,7 @@ command_t *create_command(char *txt, int login, void (*ptr)(client_t *, void *))
 
 void initialize_commands(ftp_t *ftp)
 {
-    ftp->cmds = malloc(sizeof(command_t *) * 9);
+    ftp->cmds = malloc(sizeof(command_t *) * 10);
 
     if (ftp->cmds == NULL) {
         perror("malloc");
@@ -84,5 +84,6 @@ void initialize_commands(ftp_t *ftp)
     ftp->cmds[5] = create_command("HELP", 1, &help_cmd);
     ftp->cmds[6] = create_command("CWD", 1, &cwd_cmd);
     ftp->cmds[7] = create_command("PWD", 1, &pwd_cmd);
-    ftp->cmds[8] = NULL;
+    ftp->cmds[8] = create_command("DELE", 1, &delete_file_cmd);
+    ftp->cmds[9] = NULL;
 }

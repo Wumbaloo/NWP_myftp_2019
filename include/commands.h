@@ -15,6 +15,7 @@ void noop_cmd(client_t *client, void *arg);
 void help_cmd(client_t *client, void *arg);
 void cwd_cmd(client_t *client, void *arg);
 void pwd_cmd(client_t *client, void *arg);
+void delete_file_cmd(client_t *client, void *input);
 
 void initialize_commands(ftp_t *ftp);
 

@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <arpa/inet.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include "ftp.h"
 
 unsigned int get_port(int fd)
@@ -42,14 +44,20 @@ void pasv_treat_new_client(client_t *client)
 {
     struct sockaddr_in config;
     socklen_t addr_size = sizeof(struct sockaddr_in);
-
+    char *str = NULL;
+    int forkid = -1;
     int fd = accept(client->data_socket, (struct sockaddr *) &config,
                     &addr_size);
     if (fd < 0) {
         perror("accept");
         exit(84);
     }
-
+    dprintf(fd, "220 Welcome PASV sub-client.");
+    forkid = fork();
+    if (forkid == 0) {
+        str = read_from_client(fd);
+        close(fd);
+    }
 }
 
 void pasv_command(client_t *client, void *arg)
