@@ -41,17 +41,40 @@ int accept_new_connection(int serverfd, client_t **head, char *pwd)
     return (client->fd);
 }
 
+char *remove_crlf(char *string, int valread)
+{
+    int new_valread = valread;
+    char *new_string = NULL;
+
+    if (string[valread - 1] == 10) {
+        string[valread - 2] = '\0';
+        new_valread--;
+    }
+    if (string[valread - 2] == 13) {
+        string[valread - 3] = '\0';
+        new_valread--;
+    }
+    if (new_valread != valread) {
+        new_string = malloc(sizeof(char) * (new_valread + 1));
+        if (!new_string)
+            exit(84);
+        memcpy(new_string, string, new_valread);
+        new_string[new_valread] = '\0';
+        free(string);
+    }
+    return ((new_string ? new_string : string));
+}
+
 char *read_from_client(int fd)
 {
     int valread = -1;
     char buffer[1024];
     char *string = NULL;
 
-    valread = read(fd, buffer, 1024);
-    if (buffer[valread - 1] == 10) {
-        buffer[valread - 2] = '\0';
-        valread--;
-    }
+    do {
+        valread = read(fd, buffer, 1024);
+    } while (valread <= 2 || (buffer[valread - 1] != 10
+            && buffer[valread - 2] != 13));
     string = malloc(sizeof(char) * (valread + 1));
     if (string == NULL) {
         perror("malloc");
@@ -59,6 +82,7 @@ char *read_from_client(int fd)
     }
     memcpy(string, buffer, valread);
     string[valread] = '\0';
+    string = remove_crlf(string, valread);
     return (string);
 }
 
