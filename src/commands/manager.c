@@ -15,12 +15,15 @@ void execute_command(client_t *client, command_t **cmds, int i, void *arg)
 {
     if (i == 0) {
         cmds[i]->func(client, (fd_set *) arg);
-    } else if (cmds[i]->need_login != client->is_logged)
+    } else if (cmds[i]->need_login > client->is_logged)
         client_answer(client, 530, "Not logged in.");
     else {
         cmds[i]->func(client, (char *) arg);
         free(arg);
     }
+    if ((strcmp(cmds[i]->command, "USER") != 0 &&
+        strcmp(cmds[i]->command, "PASS") != 0) && client->is_logged == -1)
+        client->is_logged = 0;
 }
 
 void handle_command(client_t *client, char *input, fd_set *active, ftp_t *ftp)
@@ -79,7 +82,7 @@ void initialize_commands(ftp_t *ftp)
     ftp->cmds[3] = create_command("PASV", 1, &pasv_command);
     ftp->cmds[4] = create_command("NOOP", 1, &noop_cmd);
     ftp->cmds[5] = create_command("HELP", 0, &help_cmd);
-    ftp->cmds[6] = create_command("CWD", 0, &cwd_cmd);
-    ftp->cmds[7] = create_command("PWD", 0, &pwd_cmd);
+    ftp->cmds[6] = create_command("CWD", 1, &cwd_cmd);
+    ftp->cmds[7] = create_command("PWD", 1, &pwd_cmd);
     ftp->cmds[8] = NULL;
 }
