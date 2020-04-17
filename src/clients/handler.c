@@ -37,7 +37,8 @@ int accept_new_connection(int serverfd, client_t **head, char *pwd)
     client->next = NULL;
     client_answer(client, 220, "Welcome client.");
     insert_new_node(head, client);
-    printf("A new client joined with IP: %s.\n", inet_ntoa(client->data.sin_addr));
+    printf("A new client joined with IP: %s.\n",
+            inet_ntoa(client->data.sin_addr));
     return (client->fd);
 }
 
@@ -100,7 +101,8 @@ int treat_client(int serverfd, int i, fd_set *active, ftp_t *ftp)
         buffer = read_from_client(i);
         if (buffer == NULL)
             return (84);
-        handle_command(get_client_by_id(ftp->client_head, i), buffer, active, ftp);
+        handle_command(get_client_by_id(ftp->client_head, i), buffer,
+                        active, ftp);
         printf("Received: %s\n", buffer);
     }
     return (0);
