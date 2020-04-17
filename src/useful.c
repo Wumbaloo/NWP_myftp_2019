@@ -23,3 +23,10 @@ void close_connection(client_t *client, void *active_fd_set)
     client->is_logged = 0;
     FD_CLR(client->fd, (fd_set *) active_fd_set);
 }
+
+int does_file_exists(char *path)
+{
+    if (access(path, F_OK) != -1)
+        return (1);
+    return (0);
+}

@@ -57,7 +57,9 @@ int launch_server(int ac, char **av)
     if (ac != 3)
         return (84);
     port = strtol(av[1], NULL, 10);
-    if (port < 0)
+    if (port < 0 || port > 65535)
+        return (84);
+    else if (!does_file_exists(av[2]))
         return (84);
     serverfd = create_server(port);
     if (serverfd < 0)
