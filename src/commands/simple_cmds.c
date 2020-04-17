@@ -31,6 +31,10 @@ void cwd_cmd(client_t *client, void *input)
     if (!txt)
         client_answer(client, 501, "Syntax error in parameters.");
     else {
+        if (!does_folder_exists(txt)) {
+            client_answer(client, 550, "Failed to change directory.");
+            return;
+        }
         free(client->pwd);
         client->pwd = strdup(txt);
         client_answer(client, 250, client->pwd);

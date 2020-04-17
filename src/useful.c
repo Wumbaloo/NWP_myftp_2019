@@ -5,6 +5,8 @@
 ** Useful functions for the FTP
 */
 
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -24,9 +26,13 @@ void close_connection(client_t *client, void *active_fd_set)
     FD_CLR(client->fd, (fd_set *) active_fd_set);
 }
 
-int does_file_exists(char *path)
+int does_folder_exists(char *path)
 {
-    if (access(path, F_OK) != -1)
-        return (1);
-    return (0);
+    struct stat path_stat;
+
+    if (stat(path, &path_stat) != 0)
+        return (0);
+    else if (access(path, F_OK) == -1)
+        return (0);
+    return (S_ISDIR(path_stat.st_mode));
 }
