@@ -16,9 +16,8 @@
 #include "commands.h"
 #include "ftp.h"
 
-int accept_new_connection(int serverfd, client_t **head, char *pwd)
+client_t *create_client(char *pwd)
 {
-    socklen_t client_addr_size = sizeof(struct sockaddr_in);
     client_t *client = NULL;
 
     client = malloc(sizeof(client_t));
@@ -26,15 +25,23 @@ int accept_new_connection(int serverfd, client_t **head, char *pwd)
         perror("malloc");
         exit(84);
     }
+    client->is_logged = 0;
+    client->data_socket = -1;
+    client->pwd = strdup(pwd);
+    client->next = NULL;
+}
+
+int accept_new_connection(int serverfd, client_t **head, char *pwd)
+{
+    socklen_t client_addr_size = sizeof(struct sockaddr_in);
+    client_t *client = create_client(pwd);
+
     client->fd = accept(serverfd, (struct sockaddr *) &client->data,
                     &client_addr_size);
     if (client->fd < 0) {
         perror("accept");
         return (-1);
     }
-    client->is_logged = 0;
-    client->pwd = strdup(pwd);
-    client->next = NULL;
     client_answer(client, 220, "Welcome client.");
     insert_new_node(head, client);
     printf("A new client joined with IP: %s.\n",
