@@ -10,11 +10,12 @@
 #include "clients.h"
 #include "ftp.h"
 
-void set_username(client_t *client, void *cmd)
+void set_username(client_t *client, void *cmd, ftp_t *ftp)
 {
     char *command = strdup(cmd);
     char *txt = strtok(cmd, " ");
 
+    (void) (ftp);
     if (txt)
         txt = strtok(NULL, " ");
     if (client->is_logged == 1) {
@@ -33,11 +34,12 @@ void set_username(client_t *client, void *cmd)
     }
 }
 
-void set_password(client_t *client, void *cmd)
+void set_password(client_t *client, void *cmd, ftp_t *ftp)
 {
     char *command = strdup(cmd);
     char *txt = strtok(cmd, " ");
 
+    (void) (ftp);
     txt = strtok(NULL, " ");
     if (txt && (txt[0] != 13 && txt[0] != '\n') || client->is_logged == -1) {
         client_answer(client, 530, "Login incorrect.");

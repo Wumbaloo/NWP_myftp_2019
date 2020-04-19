@@ -23,18 +23,18 @@ typedef struct client_s {
     struct client_s *next;
 } client_t;
 
-typedef struct command_s {
-    int need_login;
-    char *command;
-    void (*func)(client_t *, void *);
-} command_t;
-
 typedef struct ftp_s {
     int serverfd;
     char *pwd;
     struct timeval timeout;
-    command_t **cmds;
+    struct command_s **cmds;
     client_t *client_head;
 } ftp_t;
+
+typedef struct command_s {
+    int need_login;
+    char *command;
+    void (*func)(client_t *, void *, ftp_t *ftp);
+} command_t;
 
 #endif

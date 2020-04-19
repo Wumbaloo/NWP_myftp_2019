@@ -11,18 +11,18 @@
 #include "commands.h"
 #include "ftp.h"
 
-void execute_command(client_t *client, command_t **cmds, int i, void *arg)
+void execute_command(client_t *client, ftp_t *ftp, int i, void *arg)
 {
     if (i == 0) {
-        cmds[i]->func(client, (fd_set *) arg);
-    } else if (cmds[i]->need_login > client->is_logged)
+        ftp->cmds[i]->func(client, (fd_set *) arg, ftp);
+    } else if (ftp->cmds[i]->need_login > client->is_logged)
         client_answer(client, 530, "Not logged in.");
     else {
-        cmds[i]->func(client, (char *) arg);
+        ftp->cmds[i]->func(client, (char *) arg, ftp);
         free(arg);
     }
-    if ((strcmp(cmds[i]->command, "USER") != 0 &&
-        strcmp(cmds[i]->command, "PASS") != 0) && client->is_logged == -1)
+    if ((strcmp(ftp->cmds[i]->command, "USER") != 0 &&
+        strcmp(ftp->cmds[i]->command, "PASS") != 0) && client->is_logged == -1)
         client->is_logged = 0;
 }
 
@@ -39,7 +39,7 @@ void handle_command(client_t *client, char *input, fd_set *active, ftp_t *ftp)
     for (int i = 0 ; ftp->cmds[i] ; i++) {
         if (strcmp(ftp->cmds[i]->command, cmd) == 0) {
             arg = (i == 0 ? (void *) active : (void *) base);
-            execute_command(client, ftp->cmds, i, arg);
+            execute_command(client, ftp, i, arg);
             return;
         }
     }
@@ -47,7 +47,8 @@ void handle_command(client_t *client, char *input, fd_set *active, ftp_t *ftp)
     free(base);
 }
 
-command_t *create_command(char *txt, int login, void (*ptr)(client_t *, void *))
+command_t *create_command(char *txt, int login,
+                            void (*ptr)(client_t *, void *, ftp_t *))
 {
     command_t *cmd = malloc(sizeof(command_t));
     int len = strlen(txt);
@@ -68,9 +69,10 @@ command_t *create_command(char *txt, int login, void (*ptr)(client_t *, void *))
     return (cmd);
 }
 
-void list_cmd(client_t *client, void *arg)
+void list_cmd(client_t *client, void *arg, ftp_t *ftp)
 {
     (void) (arg);
+    (void) (ftp);
     printf("%d\n", client->data_fd);
     if (client->data_socket == -1 || client->data_fd == -1) {
         client_answer(client, 425, "Use PORT or PASV first.");

@@ -19,8 +19,9 @@ void client_answer(client_t *client, int code, char *msg)
     printf("Client %d: %d\r\n", client->fd, code);
 }
 
-void close_connection(client_t *client, void *active_fd_set)
+void close_connection(client_t *client, void *active_fd_set, ftp_t *ftp)
 {
+    (void) (ftp);
     client_answer(client, 221, "Service closing control connection.");
     if (client->data_socket != -1)
         close(client->data_socket);

@@ -12,30 +12,34 @@
 #include <sys/types.h>
 #include "ftp.h"
 
-void noop_cmd(client_t *client, void *arg)
+void noop_cmd(client_t *client, void *arg, ftp_t *ftp)
 {
     (void) (arg);
+    (void) (ftp);
     client_answer(client, 200, "NOOP.");
 }
 
-void help_cmd(client_t *client, void *arg)
+void help_cmd(client_t *client, void *arg, ftp_t *ftp)
 {
     (void) (arg);
+    (void) (ftp);
     client_answer(client, 214, "This FTP works perfectly! I think so...");
 }
 
-void pwd_cmd(client_t *client, void *arg)
+void pwd_cmd(client_t *client, void *arg, ftp_t *ftp)
 {
     (void) (arg);
+    (void) (ftp);
     client_answer(client, 257, client->pwd);
 }
 
-void delete_file_cmd(client_t *client, void *input)
+void delete_file_cmd(client_t *client, void *input, ftp_t *ftp)
 {
     char *command = strdup(input);
     char *txt = strtok(input, " ");
     FILE *file = NULL;
 
+    (void) (ftp);
     if (txt)
         txt = strtok(NULL, " ");
     if (!txt)

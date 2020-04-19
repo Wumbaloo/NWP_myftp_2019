@@ -74,12 +74,13 @@ void pasv_split_tasks(client_t *client, int port, int pip[2])
     }
 }
 
-void pasv_command(client_t *client, void *arg)
+void pasv_command(client_t *client, void *arg, ftp_t *ftp)
 {
     client->data_socket = socket(AF_INET, SOCK_STREAM, 0);
     unsigned int port = get_port(client->fd) / 256;
     int pip[2];
 
+    (void) (ftp);
     if (pipe(pip)) {
         perror("pipe");
         exit(84);
