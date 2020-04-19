@@ -11,5 +11,5 @@ int main(int ac, char **av)
 {
     int result = launch_server(ac, av);
 
-    return (0);
+    return (result);
 }

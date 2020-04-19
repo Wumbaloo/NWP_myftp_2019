@@ -26,4 +26,6 @@ void pasv_command(client_t *client, void *arg);
 
 void free_ftp(ftp_t *ftp);
 
+struct sockaddr_in setup_server_config(int sockfd, int port);
+
 #endif

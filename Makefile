@@ -10,6 +10,7 @@ SRC_DIR	=	src/
 FILES	=	clients/handler.c		\
 			clients/inputs.c		\
 			clients/linked_list.c	\
+			commands/cwd.c			\
 			commands/manager.c		\
 			commands/simple_cmds.c	\
 			core/core.c				\

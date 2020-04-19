@@ -68,9 +68,22 @@ command_t *create_command(char *txt, int login, void (*ptr)(client_t *, void *))
     return (cmd);
 }
 
+void list_cmd(client_t *client, void *arg)
+{
+    (void) (arg);
+    printf("%d\n", client->data_fd);
+    if (client->data_socket == -1 || client->data_fd == -1) {
+        client_answer(client, 425, "Use PORT or PASV first.");
+        return;
+    }
+    client_answer(client, 150, "Here comes the directory listing.");
+    dprintf(client->data_fd, "LIST\r\n");
+    client_answer(client, 226, "Directory send OK.");
+}
+
 void initialize_commands(ftp_t *ftp)
 {
-    ftp->cmds = malloc(sizeof(command_t *) * 10);
+    ftp->cmds = malloc(sizeof(command_t *) * 11);
 
     if (ftp->cmds == NULL) {
         perror("malloc");
@@ -85,5 +98,6 @@ void initialize_commands(ftp_t *ftp)
     ftp->cmds[6] = create_command("CWD", 1, &cwd_cmd);
     ftp->cmds[7] = create_command("PWD", 1, &pwd_cmd);
     ftp->cmds[8] = create_command("DELE", 1, &delete_file_cmd);
-    ftp->cmds[9] = NULL;
+    ftp->cmds[9] = create_command("LIST", 1, &list_cmd);
+    ftp->cmds[10] = NULL;
 }

@@ -7,6 +7,7 @@
 
 #include <stdlib.h>
 #include <signal.h>
+#include <unistd.h>
 #include "commands.h"
 #include "ftp.h"
 
@@ -41,6 +42,8 @@ ftp_t *create_ftp(char *path, int port, int serverfd)
 
     if (ftp == NULL)
         return (NULL);
+    if (chdir(path) != 0)
+        return (NULL);
     ftp->pwd = path;
     ftp->timeout.tv_sec = 1;
     ftp->timeout.tv_usec = ftp->timeout.tv_sec * 1000;
@@ -57,7 +60,7 @@ int launch_server(int ac, char **av)
     if (ac != 3)
         return (84);
     port = strtol(av[1], NULL, 10);
-    if (port < 0 || port > 65535)
+    if (port <= 0 || port > 65535)
         return (84);
     else if (!does_folder_exists(av[2]))
         return (84);

@@ -5,7 +5,8 @@
 ## Receive "files" (a list of C files) and "from" (directory of call)
 ##
 
-TEST_FILES	= 	test_linked_list.c	\
+TEST_FILES	=	test_cwd.c			\
+				test_linked_list.c	\
 
 NAME = unit_tests
 

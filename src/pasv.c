@@ -40,46 +40,55 @@ void pasv_send_client_instructions(client_t *client, unsigned int port)
     printf("PASV from: %s.\n", ip);
 }
 
-void pasv_treat_new_client(client_t *client)
+void pasv_treat_new_client(client_t **client)
 {
     struct sockaddr_in config;
     socklen_t addr_size = sizeof(struct sockaddr_in);
-    char *str = NULL;
-    int forkid = -1;
-    int fd = accept(client->data_socket, (struct sockaddr *) &config,
-                    &addr_size);
-    if (fd < 0) {
+    (*client)->data_fd = accept((*client)->data_socket,
+                        (struct sockaddr *) &config, &addr_size);
+    if ((*client)->data_fd < 0) {
         perror("accept");
         exit(84);
     }
-    dprintf(fd, "220 Welcome PASV sub-client.");
-    forkid = fork();
-    if (forkid == 0) {
-        str = read_from_client(fd);
-        close(fd);
+    dprintf((*client)->data_fd, "220 Welcome PASV sub-client.\r\n");
+}
+
+void pasv_split_tasks(client_t *client, int port, int pip[2])
+{
+    pid_t forkpid = fork();
+
+    if (forkpid == (pid_t) 0) {
+        if (bind(client->data_socket, (struct sockaddr *)
+            &client->config_socket, sizeof(struct sockaddr_in)) < 0) {
+                perror("bind");
+                exit(84);
+        }
+        close(pip[0]);
+        if (listen(client->data_socket, 1) < 0) {
+            perror("listen");
+            exit(84);
+        }
+        pasv_treat_new_client(&client);
+    } else {
+        pasv_send_client_instructions(client, port);
     }
 }
 
 void pasv_command(client_t *client, void *arg)
 {
     client->data_socket = socket(AF_INET, SOCK_STREAM, 0);
-    unsigned int port = get_port(client->fd);
+    unsigned int port = get_port(client->fd) / 256;
+    int pip[2];
 
+    if (pipe(pip)) {
+        perror("pipe");
+        exit(84);
+    }
     if (client->data_socket == -1) {
         perror("socket");
         exit(84);
     }
-    client->config_socket = client->data;
-    client->config_socket.sin_port = htons(port + 256);
-    if (bind(client->data_socket, (struct sockaddr *) &client->config_socket,
-        sizeof(struct sockaddr_in)) < 0) {
-            perror("bind");
-            exit(84);
-    }
-    if (listen(client->data_socket, 1) < 0) {
-        perror("listen");
-        exit(84);
-    }
-    pasv_send_client_instructions(client, port);
-    pasv_treat_new_client(client);
+    client->config_socket = setup_server_config(client->data_socket,
+                                                (port * 256) + 256);
+    pasv_split_tasks(client, port, pip);
 }

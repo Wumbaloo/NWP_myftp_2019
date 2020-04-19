@@ -27,7 +27,8 @@ client_t *create_client(char *pwd)
     }
     client->is_logged = 0;
     client->data_socket = -1;
-    client->pwd = strdup(pwd);
+    client->data_fd = -1;
+    client->pwd = strdup("/");
     client->next = NULL;
 }
 
