@@ -14,6 +14,7 @@
 
 typedef struct client_s {
     int fd;
+    int data_pip[2];
     int data_socket;
     int data_fd;
     int is_logged;

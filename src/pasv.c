@@ -53,9 +53,10 @@ void pasv_treat_new_client(client_t **client)
     dprintf((*client)->data_fd, "220 Welcome PASV sub-client.\r\n");
 }
 
-void pasv_split_tasks(client_t *client, int port, int pip[2])
+void pasv_split_tasks(client_t *client)
 {
     pid_t forkpid = fork();
+    char *str = NULL;
 
     if (forkpid == (pid_t) 0) {
         if (bind(client->data_socket, (struct sockaddr *)
@@ -63,14 +64,17 @@ void pasv_split_tasks(client_t *client, int port, int pip[2])
                 perror("bind");
                 exit(84);
         }
-        close(pip[0]);
+        close(client->data_pip[0]);
         if (listen(client->data_socket, 1) < 0) {
             perror("listen");
             exit(84);
         }
         pasv_treat_new_client(&client);
+        dprintf(client->data_pip[1], "%d\n", client->data_fd);
     } else {
-        pasv_send_client_instructions(client, port);
+        close(client->data_pip[1]);
+        str = read_from_client(client->data_pip[0]);
+        client->data_fd = strtol(str, NULL, 10);
     }
 }
 
@@ -78,10 +82,9 @@ void pasv_command(client_t *client, void *arg, ftp_t *ftp)
 {
     client->data_socket = socket(AF_INET, SOCK_STREAM, 0);
     unsigned int port = get_port(client->fd) / 256;
-    int pip[2];
 
     (void) (ftp);
-    if (pipe(pip)) {
+    if (pipe(client->data_pip)) {
         perror("pipe");
         exit(84);
     }
@@ -91,5 +94,6 @@ void pasv_command(client_t *client, void *arg, ftp_t *ftp)
     }
     client->config_socket = setup_server_config(client->data_socket,
                                                 (port * 256) + 256);
-    pasv_split_tasks(client, port, pip);
+    pasv_send_client_instructions(client, port);
+    pasv_split_tasks(client);
 }

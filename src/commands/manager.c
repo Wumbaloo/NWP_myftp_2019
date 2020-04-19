@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "commands.h"
 #include "ftp.h"
 
@@ -73,13 +74,13 @@ void list_cmd(client_t *client, void *arg, ftp_t *ftp)
 {
     (void) (arg);
     (void) (ftp);
-    printf("%d\n", client->data_fd);
     if (client->data_socket == -1 || client->data_fd == -1) {
         client_answer(client, 425, "Use PORT or PASV first.");
         return;
     }
     client_answer(client, 150, "Here comes the directory listing.");
     dprintf(client->data_fd, "LIST\r\n");
+    dprintf(client->data_fd, "TODO: LS\r\n");
     client_answer(client, 226, "Directory send OK.");
 }
 
