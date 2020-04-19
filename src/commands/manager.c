@@ -72,6 +72,8 @@ command_t *create_command(char *txt, int login,
 
 void list_cmd(client_t *client, void *arg, ftp_t *ftp)
 {
+    // char *args[2];
+
     (void) (arg);
     (void) (ftp);
     if (client->data_socket == -1 || client->data_fd == -1) {
@@ -80,13 +82,16 @@ void list_cmd(client_t *client, void *arg, ftp_t *ftp)
     }
     client_answer(client, 150, "Here comes the directory listing.");
     dprintf(client->data_fd, "LIST\r\n");
-    dprintf(client->data_fd, "TODO: LS\r\n");
+    // args[0] = "/bin/ls";
+    // args[1] = NULL;
+    // execve(args[0], args, NULL);
+    dprintf(client->data_fd, "GEREEE\r\n");
     client_answer(client, 226, "Directory send OK.");
 }
 
 void initialize_commands(ftp_t *ftp)
 {
-    ftp->cmds = malloc(sizeof(command_t *) * 11);
+    ftp->cmds = malloc(sizeof(command_t *) * 12);
 
     if (ftp->cmds == NULL) {
         perror("malloc");
@@ -102,5 +107,6 @@ void initialize_commands(ftp_t *ftp)
     ftp->cmds[7] = create_command("PWD", 1, &pwd_cmd);
     ftp->cmds[8] = create_command("DELE", 1, &delete_file_cmd);
     ftp->cmds[9] = create_command("LIST", 1, &list_cmd);
-    ftp->cmds[10] = NULL;
+    ftp->cmds[10] = create_command("CDUP", 1, &cdup_cmd);
+    ftp->cmds[11] = NULL;
 }

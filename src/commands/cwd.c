@@ -52,3 +52,18 @@ void cwd_cmd(client_t *client, void *input, ftp_t *ftp)
         client_answer(client, 250, client->pwd);
     }
 }
+
+void cdup_cmd(client_t *client, void *arg, ftp_t *ftp)
+{
+    char *txt = get_folder(ftp->pwd, "..");
+    (void) (arg);
+    (void) (ftp);
+
+    if (!txt)
+        client_answer(client, 250, client->pwd);
+    else {
+        free(client->pwd);
+        client->pwd = strdup(txt);
+        client_answer(client, 250, client->pwd);
+    }
+}

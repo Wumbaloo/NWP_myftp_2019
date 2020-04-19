@@ -16,6 +16,7 @@ void help_cmd(client_t *client, void *arg, ftp_t *ftp);
 void cwd_cmd(client_t *client, void *arg, ftp_t *ftp);
 void pwd_cmd(client_t *client, void *arg, ftp_t *ftp);
 void delete_file_cmd(client_t *client, void *input, ftp_t *ftp);
+void cdup_cmd(client_t *client, void *arg, ftp_t *ftp);
 
 void initialize_commands(ftp_t *ftp);
 
